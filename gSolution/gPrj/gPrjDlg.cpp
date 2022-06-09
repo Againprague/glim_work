@@ -48,10 +48,7 @@ void CAboutDlg::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(CAboutDlg, CDialogEx)
 END_MESSAGE_MAP()
 
-
 // CgPrjDlg 대화 상자
-
-
 
 CgPrjDlg::CgPrjDlg(CWnd* pParent /*=NULL*/)
 	: CDialogEx(IDD_GPRJ_DIALOG, pParent)
@@ -69,11 +66,7 @@ BEGIN_MESSAGE_MAP(CgPrjDlg, CDialogEx)
 	ON_WM_PAINT()
 	ON_WM_QUERYDRAGICON()
 	ON_WM_DESTROY()
-	ON_BN_CLICKED(IDC_BTN_TEST, &CgPrjDlg::OnBnClickedBtnTest)
-	ON_BN_CLICKED(IDC_BTN_PROCESS, &CgPrjDlg::OnBnClickedBtnProcess)
 	ON_BN_CLICKED(IDC_BTN_MAKE_PATTERN, &CgPrjDlg::OnBnClickedBtnMakePattern)
-	ON_BN_CLICKED(IDC_BTN_GET_DATA, &CgPrjDlg::OnBnClickedBtnGetData)
-	ON_BN_CLICKED(IDC_BTN_THREAD, &CgPrjDlg::OnBnClickedBtnThread)
 END_MESSAGE_MAP()
 
 
@@ -109,16 +102,10 @@ BOOL CgPrjDlg::OnInitDialog()
 	SetIcon(m_hIcon, FALSE);		// 작은 아이콘을 설정합니다.
 
 	// TODO: 여기에 추가 초기화 작업을 추가합니다.
-	//ShowWindow(SW_SHOWMAXIMIZED);
-	MoveWindow(0, 0, 1280, 800);
+	MoveWindow(0, 0, 640, 700);
 	m_pDlgImage = new CDlgImage;
 	m_pDlgImage->Create(IDD_DLGIMAGE, this);
 	m_pDlgImage->ShowWindow(SW_SHOW);
-
-	m_pDlgImgResult = new CDlgImage;
-	m_pDlgImgResult->Create(IDD_DLGIMAGE, this);
-	m_pDlgImgResult->ShowWindow(SW_SHOW);
-	m_pDlgImgResult->MoveWindow(640, 0, 640, 480);
 
 	return TRUE;  // 포커스를 컨트롤에 설정하지 않으면 TRUE를 반환합니다.
 }
@@ -163,6 +150,7 @@ void CgPrjDlg::OnPaint()
 	{
 		CDialogEx::OnPaint();
 	}
+
 }
 
 // 사용자가 최소화된 창을 끄는 동안에 커서가 표시되도록 시스템에서
@@ -172,20 +160,11 @@ HCURSOR CgPrjDlg::OnQueryDragIcon()
 	return static_cast<HCURSOR>(m_hIcon);
 }
 
-
-
-//void CgPrjDlg::OnBnClickedBtnDlg()
-//{
-//	m_pDlgImage->ShowWindow(SW_SHOW);
-//}
-
-
 void CgPrjDlg::OnDestroy()
 {
 	CDialogEx::OnDestroy();
 
 	if(m_pDlgImage)		delete m_pDlgImage;
-	if(m_pDlgImgResult)	delete m_pDlgImgResult;
 }
 
 void CgPrjDlg::callFunc(int n)
@@ -193,164 +172,79 @@ void CgPrjDlg::callFunc(int n)
 	std::cout << n << std::endl;
 }
 
-void CgPrjDlg::OnBnClickedBtnTest()
-{
-	unsigned char* fm = (unsigned char*)m_pDlgImage->m_image.GetBits();
-	int nWidth = m_pDlgImage->m_image.GetWidth();
-	int nHeight = m_pDlgImage->m_image.GetHeight();
-	int nPitch = m_pDlgImage->m_image.GetPitch();
-	memset(fm, 0, nWidth*nHeight);
-
-	for (int k = 0; k < MAX_POINT; k++) {
-		int x = rand() % nWidth;
-		int y = rand() % nHeight;
-		fm[y * nPitch + x] = rand()%0xff;
-		//m_pDlgImgResult->m_nDataCount = k;
-		//m_pDlgImgResult->m_ptData[k].x = x;
-		//m_pDlgImgResult->m_ptData[k].y = y;
-	}
-
-	int nIndex = 0;
-	int nTh = 100;
-	for (int j = 0; j < nHeight; j++) {
-		for (int i = 0; i < nWidth; i++) {
-			if (fm[j*nPitch + i] > nTh) {
-				if (m_pDlgImgResult->m_nDataCount < MAX_POINT) {
-					//cout << nIndex << ":" << i << "," << j << endl;
-					m_pDlgImgResult->m_ptData[nIndex].x = i;
-					m_pDlgImgResult->m_ptData[nIndex].y = j;
-					m_pDlgImgResult->m_nDataCount = ++nIndex;
-				}
-			}
-		}
-	}
-
-	m_pDlgImage->Invalidate();
-	m_pDlgImgResult->Invalidate();
-
-}
-
-#include "Process.h"
-#include <chrono>
-#include <thread>
-using namespace std;
-using namespace chrono;
-
-void CgPrjDlg::OnBnClickedBtnProcess()
-{
-	auto start = system_clock::now();
-
-	CProcess process;
-	int nTh = 0;
-	int nRet = process.getStarInfo(&m_pDlgImage->m_image, nTh);
-//	Sleep(1000);
-//	std::this_thread::sleep_for(std::chrono::milliseconds(1000));
-	
-	auto end = system_clock::now();
-	auto millisec = duration_cast<milliseconds>(end - start);
-
-	cout << nRet << "\t"<< millisec.count()*0.001 << "sec" <<endl;
-}
-
-
 void CgPrjDlg::OnBnClickedBtnMakePattern()
 {
+	CString str;
+	GetDlgItemText(IDC_EDIT1, str);
 	unsigned char* fm = (unsigned char*)m_pDlgImage->m_image.GetBits();
-	int nWidth = m_pDlgImage->m_image.GetWidth();
-	int nHeight = m_pDlgImage->m_image.GetHeight();
-	int nPitch = m_pDlgImage->m_image.GetPitch();
-	memset(fm, 0, nWidth*nHeight);
+	int nRadius = _ttoi(str);
+	int nGray = 180;
 
-	CRect rect(100, 100, 200, 200);
-	for (int j = rect.top; j < rect.bottom; j++) {
-		for (int i = rect.left; i < rect.right; i++) {
-			fm[j*nPitch + i] = rand()%0xff;
-		}
-	}
+	drawCircle(fm, rand() % (640-nRadius*2) , rand() % (480-nRadius*2) , nRadius, nGray);
+
 	m_pDlgImage->Invalidate();
 }
 
-
-void CgPrjDlg::OnBnClickedBtnGetData()
+void CgPrjDlg::drawCircle(unsigned char* fm, int x, int y, int nRadius, int nGray)
 {
-	unsigned char* fm = (unsigned char*)m_pDlgImage->m_image.GetBits();
-	int nWidth = m_pDlgImage->m_image.GetWidth();
-	int nHeight = m_pDlgImage->m_image.GetHeight();
+	int nCenterX = x + nRadius;
+	int nCenterY = y + nRadius;
 	int nPitch = m_pDlgImage->m_image.GetPitch();
-
-	int nTh = 0x80;
 	int nSumX = 0;
 	int nSumY = 0;
 	int nCount = 0;
-	CRect rect(0, 0, nWidth, nHeight);
-	for (int j = rect.top; j < rect.bottom; j++) {
-		for (int i = rect.left; i < rect.right; i++) {
-			if (fm[j*nPitch + i] > nTh) {
-				nSumX += i;
-				nSumY += j;
-				nCount++;
-			}
+
+	//원
+	for (int j = y; j < y + nRadius * 2; j++) {
+		for (int i = x; i < x + nRadius * 2; i++) {
+			if (isInCircle(i, j, nCenterX, nCenterY, nRadius))
+				fm[j * nPitch + i] = nGray;
 		}
 	}
-	double dCenterX = (double)nSumX / nCount;
-	double dCenterY = (double)nSumY / nCount;
 
-	cout << dCenterX << "\t" << dCenterY << endl;
-
-	m_pDlgImage->Invalidate();
-}
-
-void threadProcess(CWnd* pParent, CRect rect, int *nRet)
-{
-	CgPrjDlg *pWnd = (CgPrjDlg*)pParent;
-	*nRet = pWnd->processImg(rect);
-}
-
-void CgPrjDlg::OnBnClickedBtnThread()
-{
-	// TODO: 여기에 컨트롤 알림 처리기 코드를 추가합니다.
-	auto start = system_clock::now();
-
-	int nImgSize = 4096 * 4;
-	CRect rect(0, 0, nImgSize, nImgSize);
-	CRect rt[4];
-	int nRet[4];
-	for (int k = 0; k < 4; k++) {
-		rt[k] = rect;
-		rt[k].OffsetRect(nImgSize*(k % 2), nImgSize*int(k / 2));
+	//십자선
+	for (int i = x; i < x + nRadius * 2; i++) {
+		fm[(int)nCenterY * nPitch + i] = 255;
 	}
-	thread _thread0(threadProcess, this, rt[0], &nRet[0]);
-	thread _thread1(threadProcess, this, rt[1], &nRet[1]);
-	thread _thread2(threadProcess, this, rt[2], &nRet[2]);
-	thread _thread3(threadProcess, this, rt[3], &nRet[3]);
+	for (int j = y; j < y + nRadius * 2; j++) {
+		fm[j * nPitch + (int)nCenterX] = 255;
+	}
 
-	_thread0.join();
-	_thread1.join();
-	_thread2.join();
-	_thread3.join();
-
-	int nSum;
-	for (int k = 0; k < 4; k++)
-		nSum += nRet[k];
-
-	auto end = system_clock::now();
-	auto millisec = duration_cast<milliseconds>(end - start);
-
-	cout << nSum << "\t" << millisec.count()*0.001 << "sec" << endl;
-
+	//외곽테두리원
+	for (int j = y; j < y + nRadius * 2; j++) {
+		for (int i = x; i < x + nRadius * 2; i++) {
+			if (lineCircle(i, j, nCenterX, nCenterY, nRadius))
+				fm[j * nPitch + i] = 0;
+		}
+	}
 }
 
-int CgPrjDlg::processImg(CRect rect)
+bool CgPrjDlg::isInCircle(int i, int j, int nCenterX, int nCenterY, int nRadius)
 {
-	auto start = system_clock::now();
+	bool bRet = false;
 
-	CProcess process;
-	int nTh = 0;
-	int nRet = process.getStarInfo(&m_pDlgImage->m_image, nTh, rect);
+	double dX = i - nCenterX;
+	double dY = j - nCenterY;
+	double dDist = dX * dX + dY * dY;
 
-	auto end = system_clock::now();
-	auto millisec = duration_cast<milliseconds>(end - start);
+	if (dDist < nRadius * nRadius) {
+		bRet = true;
+	}
 
-	cout << nRet << "\t" << millisec.count()*0.001 << "sec" << endl;
-	return nRet;
+	return bRet;
+}
+
+bool CgPrjDlg::lineCircle(int i, int j, int nCenterX, int nCenterY, int nRadius)
+{
+	bool bRet = false;
+
+	double dX = i - nCenterX;
+	double dY = j - nCenterY;
+	double dDist = dX * dX + dY * dY;
+
+	if ((nRadius-1) * (nRadius-1) < dDist && dDist < (nRadius+1) * (nRadius + 1)) {
+		bRet = true;
+	}
+
+	return bRet;
 }

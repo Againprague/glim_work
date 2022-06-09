@@ -36,14 +36,12 @@ protected:
 	afx_msg HCURSOR OnQueryDragIcon();
 	DECLARE_MESSAGE_MAP()
 public:
-//	afx_msg void OnBnClickedBtnDlg();
 	afx_msg void OnDestroy();
 
 	void callFunc(int n);
-	afx_msg void OnBnClickedBtnTest();
-	afx_msg void OnBnClickedBtnProcess();
+	void drawCircle(unsigned char* fm, int x, int y, int nRadius, int nGray);
+	bool isInCircle(int i, int j, int nCenterX, int nCenterY, int nRadius);
+	bool lineCircle(int i, int j, int nCenterX, int nCenterY, int nRadius);
 	afx_msg void OnBnClickedBtnMakePattern();
-	afx_msg void OnBnClickedBtnGetData();
-	afx_msg void OnBnClickedBtnThread();
-	int processImg(CRect rect);
+
 };
