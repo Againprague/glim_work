@@ -190,29 +190,30 @@ void CgPrjDlg::drawCircle(unsigned char* fm, int x, int y, int nRadius, int nGra
 	int nCenterX = x + nRadius;
 	int nCenterY = y + nRadius;
 	int nPitch = m_pDlgImage->m_image.GetPitch();
-	int nSumX = 0;
-	int nSumY = 0;
-	int nCount = 0;
-
+	int nWidth = m_pDlgImage->m_image.GetWidth();
+	int nHeight = m_pDlgImage->m_image.GetHeight();
+	memset(fm, 0xff, nWidth * nHeight);
+	CRect rect(x, y, x + nRadius * 2, y + nRadius * 2);
+	
 	//원
-	for (int j = y; j < y + nRadius * 2; j++) {
-		for (int i = x; i < x + nRadius * 2; i++) {
+	for (int j = rect.top ; j < rect.bottom ; j++) {
+		for (int i = rect.left; i < rect.right ; i++) {
 			if (isInCircle(i, j, nCenterX, nCenterY, nRadius))
 				fm[j * nPitch + i] = nGray;
 		}
 	}
 
 	//십자선
-	for (int i = x; i < x + nRadius * 2; i++) {
-		fm[(int)nCenterY * nPitch + i] = 255;
+	for (int i = rect.left; i < rect.right; i++) {
+		fm[nCenterY * nPitch + i] = 255;
 	}
-	for (int j = y; j < y + nRadius * 2; j++) {
-		fm[j * nPitch + (int)nCenterX] = 255;
+	for (int j = rect.top; j < rect.bottom; j++) {
+		fm[j * nPitch + nCenterX] = 255;
 	}
 
-	//외곽테두리원
-	for (int j = y; j < y + nRadius * 2; j++) {
-		for (int i = x; i < x + nRadius * 2; i++) {
+	////외곽테두리원
+	for (int j = rect.top; j < rect.bottom; j++) {
+		for (int i = rect.left; i < rect.right; i++) {
 			if (lineCircle(i, j, nCenterX, nCenterY, nRadius))
 				fm[j * nPitch + i] = 0;
 		}

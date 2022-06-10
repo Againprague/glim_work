@@ -34,4 +34,5 @@ private:
 	void drawData(CDC* pDC);
 public:
 	afx_msg void OnPaint();
+
 };
